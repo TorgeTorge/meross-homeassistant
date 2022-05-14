@@ -8,10 +8,10 @@ from meross_iot.model.http.device import HttpDeviceInfo
 
 # Conditional import for switch device
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate import SUPPORT_TARGET_TEMPERATURE, SUPPORT_PRESET_MODE, HVAC_MODE_OFF, \
-    HVAC_MODE_HEAT
-from homeassistant.components.climate.const import HVAC_MODE_AUTO, HVAC_MODE_COOL, CURRENT_HVAC_IDLE, CURRENT_HVAC_HEAT, \
-    CURRENT_HVAC_OFF, CURRENT_HVAC_COOL
+from homeassistant.components.climate import SUPPORT_TARGET_TEMPERATURE, SUPPORT_PRESET_MODE, HVACMode.OFF, \
+    HVACMode.HEAT
+from homeassistant.components.climate.const import HVACMode.AUTO, HVACMode.COOL, HVACAction.IDLE, HVACMode.HEAT, \
+    HVACMode.OFF, HVACMode.COOL
 from homeassistant.const import TEMP_CELSIUS
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -43,17 +43,17 @@ class ValveEntityWrapper(MerossDevice, ClimateEntity):
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         # Turn on the device if not already on
-        if hvac_mode == HVAC_MODE_OFF:
+        if hvac_mode == HVACMode.OFF:
             await self._device.async_turn_off(skip_rate_limits=True)
             return
         elif not self._device.is_on():
             await self._device.async_turn_on(skip_rate_limits=True)
 
-        if hvac_mode == HVAC_MODE_HEAT:
+        if hvac_mode == HVACMode.HEAT:
             await self._device.async_set_mode(ThermostatV3Mode.HEAT, skip_rate_limits=True)
-        elif hvac_mode == HVAC_MODE_AUTO:
+        elif hvac_mode == HVACMode.AUTO:
             await self._device.async_set_mode(ThermostatV3Mode.AUTO, skip_rate_limits=True)
-        elif hvac_mode == HVAC_MODE_COOL:
+        elif hvac_mode == HVACMode.COOL:
             await self._device.async_set_mode(ThermostatV3Mode.COOL, skip_rate_limits=True)
         else:
             _LOGGER.warning(f"Unsupported mode for this device ({self.name}): {hvac_mode}")
@@ -93,37 +93,37 @@ class ValveEntityWrapper(MerossDevice, ClimateEntity):
     @property
     def hvac_mode(self) -> str:
         if not self._device.is_on():
-            return HVAC_MODE_OFF
+            return HVACMode.OFF
         elif self._device.mode == ThermostatV3Mode.AUTO:
-            return HVAC_MODE_AUTO
+            return HVACMode.AUTO
         elif self._device.mode == ThermostatV3Mode.HEAT:
-            return HVAC_MODE_HEAT
+            return HVACMode.HEAT
         elif self._device.mode == ThermostatV3Mode.COOL:
-            return HVAC_MODE_COOL
+            return HVACMode.COOL
         elif self._device.mode == ThermostatV3Mode.ECONOMY:
-            return HVAC_MODE_AUTO
+            return HVACMode.AUTO
         elif self._device.mode == ThermostatV3Mode.CUSTOM:
             if self._device.last_sampled_temperature < self._device.target_temperature:
-                return HVAC_MODE_HEAT
+                return HVACMode.HEAT
             else:
-                return HVAC_MODE_COOL
+                return HVACMode.COOL
         else:
             raise ValueError("Unsupported thermostat mode reported.")
 
     @property
     def hvac_action(self) -> Optional[str]:
         if not self._device.is_on():
-            return CURRENT_HVAC_OFF
+            return HVACAction.OFF
         elif self._device.is_heating:
-            return CURRENT_HVAC_HEAT
-        elif self._device.mode == HVAC_MODE_COOL:
-            return CURRENT_HVAC_COOL
+            return HVACAction.HEATING
+        elif self._device.mode == HVACAction.COOLING:
+            return HVACAction.COOLING
         else:
-            return CURRENT_HVAC_IDLE
+            return HVACAction.IDLE
 
     @property
     def hvac_modes(self) -> List[str]:
-        return [HVAC_MODE_OFF, HVAC_MODE_AUTO, HVAC_MODE_HEAT, HVAC_MODE_COOL]
+        return [HVACMode.OFF, HVACMode.AUTO, HVACMode.HEAT, HVACMode.COOL]
 
     @property
     def preset_mode(self) -> Optional[str]:
