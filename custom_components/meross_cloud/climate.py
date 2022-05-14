@@ -10,8 +10,8 @@ from meross_iot.model.http.device import HttpDeviceInfo
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate import SUPPORT_TARGET_TEMPERATURE, SUPPORT_PRESET_MODE, HVACMode.OFF, \
     HVACMode.HEAT
-from homeassistant.components.climate.const import HVACMode.AUTO, HVACMode.COOL, HVACAction.IDLE, HVACMode.HEAT, \
-    HVACMode.OFF, HVACMode.COOL
+from homeassistant.components.climate.const import HVACMode.AUTO, HVACMode.COOL, HVACAction.IDLE, HVACAction.HEATING, \
+    HVACAction.OFF, HVACAction.COOLING
 from homeassistant.const import TEMP_CELSIUS
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
